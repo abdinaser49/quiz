@@ -19,11 +19,19 @@ function shuffleArray<T>(array: T[]): T[] {
 }
 
 function shuffleWithMapping(options: string[], correctIndex: number) {
-  const indexed = options.map((opt, i) => ({ opt, isCorrect: i === correctIndex }));
-  const shuffledIndexed = shuffleArray(indexed);
+  // 1. Kala saar jawaabta saxda ah iyo kuwa khaldan
+  const correctOption = options[correctIndex];
+  const incorrectOptions = options.filter((_, i) => i !== correctIndex);
+
+  // 2. Dooro 2 ka mid ah kuwa khaldan (si ay u noqdaan 3 wadar ahaan)
+  const randomIncorrect = shuffleArray(incorrectOptions).slice(0, 2);
+
+  // 3. Isku dhex dar 3-daas (1 sax + 2 khaldan)
+  const finalOptions = shuffleArray([correctOption, ...randomIncorrect]);
+
   return {
-    shuffled: shuffledIndexed.map((x) => x.opt),
-    newCorrectIndex: shuffledIndexed.findIndex((x) => x.isCorrect),
+    shuffled: finalOptions,
+    newCorrectIndex: finalOptions.indexOf(correctOption),
   };
 }
 
