@@ -64,13 +64,27 @@ const QuizApp = () => {
     });
   };
 
+  const speakText = (text: string) => {
+    if ("speechSynthesis" in window) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "so"; // Somali language code
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
   const handleSelect = (index: number) => {
     if (answered) return;
+
+    const selectedOptionText = question.options[index];
+    speakText(selectedOptionText);
+
     setSelectedAnswer(index);
     if (index === question.correctIndex) {
       setScore((s) => s + 1);
     }
-    setTimeout(handleNext, 1200);
+    setTimeout(handleNext, 2000); // Increased timeout a bit to allow speech to be heard
   };
 
   const handleRestart = () => {
