@@ -85,8 +85,21 @@ const QuizApp = () => {
     e?.preventDefault();
     if (answered || mode !== "direct" || !directInput.trim()) return;
 
-    const correctText = question.options[question.correctIndex].toLowerCase().trim();
-    const isCorrect = directInput.toLowerCase().trim() === correctText;
+    // Normalize: lowercase, remove punctuation, and trim
+    const normalize = (str: string) =>
+      str.toLowerCase()
+        .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+        .replace(/\s{2,}/g, " ")
+        .trim();
+
+    const normalizedInput = normalize(directInput);
+    const normalizedCorrect = normalize(question.options[question.correctIndex]);
+
+    // Check if input is part of correct answer OR correct answer contains the input
+    // This allows for "qoraal sawir" to match "Abuuro qoraal, sawir, iyo cod"
+    const isCorrect =
+      normalizedInput.length >= 2 &&
+      (normalizedCorrect.includes(normalizedInput) || normalizedInput.includes(normalizedCorrect));
 
     setIsCorrectDirect(isCorrect);
     if (isCorrect) {
