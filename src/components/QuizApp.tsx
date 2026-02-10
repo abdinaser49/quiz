@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-import { CheckCircle2, XCircle, RotateCcw, ArrowRight, Brain, Sparkles, Trophy, Target, Type, ListChecks, Send } from "lucide-react";
+import { CheckCircle2, XCircle, RotateCcw, ArrowRight, Brain, Sparkles, Trophy, Target, Type, ListChecks, Send, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Screen = "welcome" | "quiz" | "results";
+type Screen = "welcome" | "quiz" | "results" | "study";
 type Mode = "choice" | "direct";
 
 function shuffleArray<T>(array: T[]): T[] {
@@ -85,7 +85,6 @@ const QuizApp = () => {
     e?.preventDefault();
     if (answered || mode !== "direct" || !directInput.trim()) return;
 
-    // Normalize: lowercase, remove punctuation, and trim
     const normalize = (str: string) =>
       str.toLowerCase()
         .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
@@ -95,8 +94,6 @@ const QuizApp = () => {
     const normalizedInput = normalize(directInput);
     const normalizedCorrect = normalize(question.options[question.correctIndex]);
 
-    // Check if input is part of correct answer OR correct answer contains the input
-    // This allows for "qoraal sawir" to match "Abuuro qoraal, sawir, iyo cod"
     const isCorrect =
       normalizedInput.length >= 2 &&
       (normalizedCorrect.includes(normalizedInput) || normalizedInput.includes(normalizedCorrect));
@@ -128,42 +125,41 @@ const QuizApp = () => {
 
   const performance = getPerformanceData();
 
-  return (
-    <div className="flex min-h-screen items-center justify-center p-4 selection:bg-primary/20 flex-col gap-6">
-      {/* Mode Toggle */}
-      {screen === "quiz" && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex bg-muted p-1 rounded-xl shadow-inner"
-        >
-          <Button
-            variant={mode === "choice" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => {
-              if (answered) return;
-              setMode("choice");
-            }}
-            className={cn("rounded-lg px-4 gap-2", mode === "choice" && "shadow-sm")}
-          >
-            <ListChecks className="h-4 w-4" />
-            Xulasho
-          </Button>
-          <Button
-            variant={mode === "direct" ? "default" : "ghost"}
-            size="sm"
-            onClick={() => {
-              if (answered) return;
-              setMode("direct");
-            }}
-            className={cn("rounded-lg px-4 gap-2", mode === "direct" && "shadow-sm")}
-          >
-            <Type className="h-4 w-4" />
-            Qoraal
-          </Button>
-        </motion.div>
-      )}
+  const studyData = [
+    {
+      category: "Generative AI & Education",
+      questions: [
+        { q: "Waa maxay Generative Artificial Intelligence?", a: "Waa tiknoolajiyad awood u leh inay abuurto qoraal, sawir, iyo cod cusub." },
+        { q: "Maxaa loola jeedaa Higher Education?", a: "Waxaa loola jeedaa waxbarashada heerka jaamacadeed." },
+        { q: "Sidee Generative AI uga caawisaa waxbarashada sare?", a: "Waxay ka caawisaa waxbaridda shakhsiyaysan, qiimaynta otomaatigga ah, iyo cilmi-baarista." },
+        { q: "Dalalkee si weyn ugu adeegsada AI jaamacadaha?", a: "USA, China, iyo UK ayaa ah dalalka ugu horreeya." },
+        { q: "Maxay Afrika uga faa’iideysaneysaa AI?", a: "Kordhinta helitaanka waxbarashada iyo taageerada ardayda." },
+        { q: "Ardayda Soomaaliya sidee ayay u isticmaalaan AI?", a: "Inta badan waxay u isticmaalaan fahamka casharrada iyo cilmi-baarista." },
+        { q: "Waa maxay caqabadaha anshaxeed ee AI?", a: "Khatarta anshaxeed sida daacadnimada waxbarashada (Academic integrity)." },
+        { q: "Maxay Intelligent AI Systems qabtaan?", a: "Waxay fahmaan baahida ardayga waxayna la qabsadaan habkiisa barasho." },
+        { q: "Waa maxay AI-driven digital technologies?", a: "Waxaa ka mid ah LMS, e-learning, iyo falanqaynta xogta (Analytics)." }
+      ]
+    },
+    {
+      category: "Cilmi-baarista (Methodology)",
+      questions: [
+        { q: "Maxaa lagu tilmaamaa research gap?", a: "Waa farqi aqooneed ama meel aan wali cilmi-baaris lagu samayn." },
+        { q: "Waa maxay ujeeddada guud ee daraasadda?", a: "Baarista adeegsiga AI iyadoo la dheellitirayo hal-abuurnimo iyo anshax." },
+        { q: "Maxuu muujinayaa conceptual framework?", a: "Wuxuu muujinayaa xiriirka ka dhexeeya IV (Independent Variable) iyo DV (Dependent Variable)." },
+        { q: "Noocee cilmi-baaris ah ayaa la isticmaalay?", a: "Waxaa la isticmaalay Quantitative Research (Cilmi-baaris tiro koob ah)." },
+        { q: "Immisa qof ayaa ka mid ah bulshada daraasadda?", a: "Tirada guud (Population) waa 200 oo qof." },
+        { q: "Waa imisa sample size-ka daraasadda?", a: "Sample size-ka la doortay waa 133 qof." },
+        { q: "Qalabkee ayaa loo adeegsaday ururinta xogta?", a: "Waxaa loo adeegsaday Questionnaires (Su'aalo-waydiin)." },
+        { q: "Sidee loo hubiyay validity-ga qalabka?", a: "Waxaa lagu hubiyay CVI (Content Validity Index) iyo khubaro (Expert Judgment)." },
+        { q: "Sidee loo cabbiray reliability-ga daraasadda?", a: "Waxaa lagu cabbiray Cronbach’s Alpha." },
+        { q: "Software kee ayaa lagu falanqeeyay xogta?", a: "Waxaa lagu falanqeeyay SPSS v27." },
+        { q: "Waa maxay xaddidaadaha daraasadda?", a: "Waxaa ka mid ah waqtiga, dhaqaalaha, iyo helitaanka xogta." }
+      ]
+    }
+  ];
 
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4 selection:bg-primary/20 flex-col gap-6 w-full max-w-7xl mx-auto">
       <AnimatePresence mode="wait">
         {screen === "welcome" && (
           <motion.div
@@ -193,10 +189,10 @@ const QuizApp = () => {
                   </CardDescription>
                 </div>
               </CardHeader>
-              <CardContent className="flex flex-col items-center pb-10 gap-6">
-                <div className="flex flex-col items-center gap-4">
+              <CardContent className="flex flex-col items-center pb-10 gap-8">
+                <div className="flex flex-col items-center gap-4 w-full">
                   <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest text-center">Dooro Nooca Quiz-ka</p>
-                  <div className="flex gap-3">
+                  <div className="flex flex-wrap justify-center gap-3">
                     <Button
                       variant={mode === "choice" ? "default" : "outline"}
                       onClick={() => setMode("choice")}
@@ -224,11 +220,74 @@ const QuizApp = () => {
                     <span>Interaktiv</span>
                   </div>
                 </div>
-                <Button size="lg" onClick={() => setScreen("quiz")} className="h-14 px-10 text-lg rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-105 active:scale-95">
-                  Bilow Quiz-ka <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+
+                <div className="flex flex-col gap-3 w-full">
+                  <Button size="lg" onClick={() => setScreen("quiz")} className="h-14 px-10 text-lg rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-[1.02] active:scale-95">
+                    Bilow Quiz-ka <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={() => setScreen("study")} className="h-14 px-10 text-lg rounded-xl border-2 hover:bg-muted transition-all gap-2">
+                    <BookOpen className="h-5 w-5 text-primary" /> Baro casharka
+                  </Button>
+                </div>
               </CardContent>
             </Card>
+          </motion.div>
+        )}
+
+        {screen === "study" && (
+          <motion.div
+            key="study"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="w-full space-y-8 py-6"
+          >
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-card/50 p-6 rounded-2xl border-2 border-primary/10 glass">
+              <div className="space-y-1 text-center md:text-left">
+                <h2 className="text-3xl font-black tracking-tight text-primary">Hage Barasho (FAQ)</h2>
+                <p className="text-muted-foreground">Halkan ka barto su'aalaha iyo jawaabaha rasmiga ah.</p>
+              </div>
+              <Button size="lg" onClick={() => setScreen("welcome")} className="rounded-xl gap-2 h-12 px-8">
+                <RotateCcw className="h-5 w-5" /> Ku laabo Hoyga
+              </Button>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-8">
+              {studyData.map((cat, idx) => (
+                <div key={idx} className="space-y-6">
+                  <h3 className="text-2xl font-bold flex items-center gap-3 text-foreground/90 px-2 sticky top-4 z-1 bg-background/80 py-2 backdrop-blur-sm rounded-lg">
+                    <span className="h-10 w-1 bg-primary rounded-full"></span>
+                    {cat.category}
+                  </h3>
+                  <div className="grid gap-4">
+                    {cat.questions.map((item, i) => (
+                      <Card key={i} className="glass border-none shadow-sm hover:shadow-md transition-all group overflow-hidden">
+                        <CardHeader className="p-5 flex flex-row items-start gap-4 space-y-0">
+                          <div className="bg-primary/10 text-primary h-10 w-10 rounded-xl flex items-center justify-center shrink-0 font-bold text-lg group-hover:bg-primary group-hover:text-white transition-colors">
+                            {i + 1}
+                          </div>
+                          <div className="space-y-3">
+                            <CardTitle className="text-lg font-bold leading-snug">{item.q}</CardTitle>
+                            <div className="bg-muted/50 p-4 rounded-xl border border-border/50">
+                              <p className="text-primary font-semibold flex items-start gap-2 leading-relaxed">
+                                <CheckCircle2 className="h-5 w-5 mt-0.5 shrink-0 text-green-500" />
+                                {item.a}
+                              </p>
+                            </div>
+                          </div>
+                        </CardHeader>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-center pt-10 pb-20">
+              <Button size="lg" onClick={() => setScreen("quiz")} className="h-16 px-12 text-xl rounded-2xl shadow-xl shadow-primary/20 hover:scale-105 transition-transform gap-3">
+                Hadda bilow Quiz-ka <ArrowRight className="h-6 w-6" />
+              </Button>
+            </div>
           </motion.div>
         )}
 
@@ -242,18 +301,27 @@ const QuizApp = () => {
           >
             <div className="flex items-center justify-between px-2">
               <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">
-                  Su'aasha {currentIndex + 1} ee {total}
-                </p>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Su'aasha {currentIndex + 1} ee {total}</p>
                 <h3 className="text-xl font-bold">Hore u soco</h3>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-muted-foreground">Score-kaaga</p>
-                <p className="text-xl font-bold text-primary">{score}</p>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Score-kaaga</p>
+                <p className="text-3xl font-black text-primary">{score}</p>
               </div>
             </div>
 
-            <Progress value={progress} className="h-3 rounded-full bg-secondary" />
+            <Progress value={progress} className="h-4 rounded-full bg-secondary border border-border/10" />
+
+            <div className="flex justify-center">
+              <div className="flex bg-muted/50 p-1 rounded-xl border border-border/50">
+                <Button variant={mode === "choice" ? "default" : "ghost"} size="sm" onClick={() => !answered && setMode("choice")} className="rounded-lg gap-2">
+                  <ListChecks className="h-4 w-4" /> Xulasho
+                </Button>
+                <Button variant={mode === "direct" ? "default" : "ghost"} size="sm" onClick={() => !answered && setMode("direct")} className="rounded-lg gap-2">
+                  <Type className="h-4 w-4" /> Qoraal
+                </Button>
+              </div>
+            </div>
 
             <AnimatePresence mode="wait">
               <motion.div
@@ -263,15 +331,15 @@ const QuizApp = () => {
                 exit={{ x: -20, opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="glass border-none shadow-2xl overflow-hidden">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-xl sm:text-2xl leading-relaxed font-semibold">
+                <Card className="glass border-none shadow-2xl overflow-hidden rounded-3xl">
+                  <CardHeader className="pb-6 pt-8">
+                    <CardTitle className="text-2xl sm:text-3xl leading-relaxed font-black text-center px-4">
                       {question.question}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-4">
+                  <CardContent className="pt-4 pb-8 px-6">
                     {mode === "choice" ? (
-                      <div className="grid gap-3">
+                      <div className="grid gap-4">
                         {question.options.map((option, i) => {
                           const isCorrect = i === question.correctIndex;
                           const isSelected = i === selectedAnswer;
@@ -281,36 +349,36 @@ const QuizApp = () => {
                           return (
                             <motion.button
                               key={i}
-                              whileHover={!answered ? { scale: 1.01, x: 5 } : {}}
+                              whileHover={!answered ? { scale: 1.02, x: 8 } : {}}
                               whileTap={!answered ? { scale: 0.98 } : {}}
                               disabled={answered}
                               onClick={() => handleSelect(i)}
                               className={cn(
-                                "option-button flex w-full items-center gap-4 rounded-xl border-2 p-4 text-left transition-all duration-300",
-                                !answered && "hover:border-primary/50 hover:bg-primary/5 border-border bg-card/50",
-                                answered && !isCorrect && !isSelected && "opacity-40 border-border bg-transparent",
-                                showCorrect && "border-green-500 bg-green-500/10 text-green-700 shadow-lg shadow-green-500/20",
-                                showWrong && "border-destructive bg-destructive/10 text-destructive shadow-lg shadow-destructive/20"
+                                "option-button flex w-full items-center gap-5 rounded-2xl border-2 p-5 text-left transition-all duration-300",
+                                !answered && "hover:border-primary/50 hover:bg-primary/5 border-border/40 bg-card/40",
+                                answered && !isCorrect && !isSelected && "opacity-30 border-border/20 grayscale-[0.5]",
+                                showCorrect && "border-green-500 bg-green-500/15 text-green-800 shadow-xl shadow-green-500/20",
+                                showWrong && "border-destructive bg-destructive/15 text-destructive shadow-xl shadow-destructive/20"
                               )}
                             >
                               <span className={cn(
-                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-2 text-sm font-bold transition-colors",
+                                "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 text-lg font-black transition-all",
                                 !answered && "bg-secondary text-secondary-foreground border-transparent",
-                                showCorrect && "bg-green-500 text-white border-green-500",
+                                showCorrect && "bg-green-500 text-white border-green-500 rotate-[360deg]",
                                 showWrong && "bg-destructive text-white border-destructive",
                                 answered && !isCorrect && !isSelected && "bg-muted text-muted-foreground"
                               )}>
                                 {String.fromCharCode(65 + i)}
                               </span>
-                              <span className="flex-1 font-medium">{option}</span>
-                              {showCorrect && <CheckCircle2 className="h-6 w-6 shrink-0 text-green-600 animate-in" />}
-                              {showWrong && <XCircle className="h-6 w-6 shrink-0 text-destructive animate-in" />}
+                              <span className="flex-1 font-bold text-lg">{option}</span>
+                              {showCorrect && <CheckCircle2 className="h-8 w-8 shrink-0 text-green-600 animate-in bounce-in" />}
+                              {showWrong && <XCircle className="h-8 w-8 shrink-0 text-destructive animate-in" />}
                             </motion.button>
                           );
                         })}
                       </div>
                     ) : (
-                      <form onSubmit={handleDirectSubmit} className="space-y-6">
+                      <form onSubmit={handleDirectSubmit} className="space-y-6 max-w-lg mx-auto">
                         <div className="relative">
                           <Input
                             placeholder="Halkan ku qor jawaabta saxda ah..."
@@ -318,19 +386,14 @@ const QuizApp = () => {
                             onChange={(e) => setDirectInput(e.target.value)}
                             disabled={answered}
                             className={cn(
-                              "h-16 px-6 text-lg rounded-xl border-2 transition-all",
-                              isCorrectDirect === true && "border-green-500 bg-green-500/5 ring-green-500/20",
-                              isCorrectDirect === false && "border-destructive bg-destructive/5 ring-destructive/20"
+                              "h-20 px-8 text-xl rounded-2xl border-2 transition-all shadow-inner font-semibold",
+                              isCorrectDirect === true && "border-green-500 bg-green-500/10",
+                              isCorrectDirect === false && "border-destructive bg-destructive/10"
                             )}
                           />
                           {!answered && (
-                            <Button
-                              type="submit"
-                              size="icon"
-                              className="absolute right-2 top-2 h-12 w-12 rounded-lg"
-                              disabled={!directInput.trim()}
-                            >
-                              <Send className="h-5 w-5" />
+                            <Button type="submit" size="icon" className="absolute right-3 top-3 h-14 w-14 rounded-xl shadow-lg" disabled={!directInput.trim()}>
+                              <Send className="h-6 w-6" />
                             </Button>
                           )}
                         </div>
@@ -338,23 +401,17 @@ const QuizApp = () => {
                         <AnimatePresence>
                           {answered && (
                             <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
                               className={cn(
-                                "p-4 rounded-xl flex items-center gap-3 font-medium",
-                                isCorrectDirect ? "bg-green-500/10 text-green-700 border border-green-200" : "bg-destructive/10 text-destructive border border-destructive/20"
+                                "p-6 rounded-2xl flex flex-col items-center text-center gap-3 font-bold text-lg border-2",
+                                isCorrectDirect ? "bg-green-500/10 text-green-700 border-green-500/20" : "bg-destructive/10 text-destructive border-destructive/20"
                               )}
                             >
                               {isCorrectDirect ? (
-                                <>
-                                  <CheckCircle2 className="h-5 w-5" />
-                                  <span>Waa sax! Aad baad u fiicantahay.</span>
-                                </>
+                                <><CheckCircle2 className="h-10 w-10 text-green-500" /> <span>WAXAAD QORTAY WAA SAX!</span></>
                               ) : (
-                                <>
-                                  <XCircle className="h-5 w-5" />
-                                  <span>Waa khalad. Jawaabta saxda ahayd: <span className="font-bold underline">{question.options[question.correctIndex]}</span></span>
-                                </>
+                                <><XCircle className="h-10 w-10 text-destructive" /> <span>WAA KHALAD. JAWAABTU WAXAY AHAYD:</span> <span className="text-2xl font-black underline">{question.options[question.correctIndex]}</span></>
                               )}
                             </motion.div>
                           )}
@@ -375,38 +432,47 @@ const QuizApp = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="w-full max-w-xl"
           >
-            <Card className="glass overflow-hidden">
+            <Card className="glass overflow-hidden rounded-3xl">
               <div className="h-2 premium-gradient" />
-              <CardHeader className="space-y-4 text-center pb-2 pt-10">
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  <performance.icon className={cn("mx-auto h-16 w-16 mb-4", performance.color)} />
-                  <CardTitle className="text-3xl">Quiz-ka waa dhamaaday!</CardTitle>
+              <CardHeader className="space-y-4 text-center pb-2 pt-12">
+                <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }}>
+                  <performance.icon className={cn("mx-auto h-24 w-24 mb-6", performance.color)} />
+                  <CardTitle className="text-4xl font-black uppercase tracking-tighter">Natiijadaada</CardTitle>
                 </motion.div>
               </CardHeader>
-              <CardContent className="text-center space-y-8 pb-10">
-                <div className="space-y-2">
-                  <motion.p
+              <CardContent className="text-center space-y-10 pb-12 px-10">
+                <div className="relative inline-block">
+                  <motion.div
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ type: "spring", delay: 0.4 }}
-                    className="text-6xl font-black text-primary"
+                    transition={{ type: "spring", delay: 0.4, damping: 10 }}
+                    className="text-8xl font-black tracking-tighter text-primary"
                   >
                     {percentage}%
-                  </motion.p>
-                  <p className="text-xl font-medium text-muted-foreground">
-                    Waxaad heshay <span className="text-foreground font-bold">{score}</span> su'aalood oo sax ah {total} ka mid ah.
-                  </p>
+                  </motion.div>
                 </div>
 
-                <div className="px-8 flex flex-col items-center gap-6">
-                  <Progress value={percentage} className="h-4 rounded-full" />
-                  <p className={cn("text-2xl font-bold", performance.color)}>{performance.message}</p>
-                  <Button size="lg" onClick={handleRestart} className="h-14 px-10 rounded-full variant-outline border-2 hover:bg-primary hover:text-white transition-all">
-                    <RotateCcw className="mr-2 h-5 w-5" /> Dib u bilaaw
+                <div className="space-y-4">
+                  <p className="text-2xl font-bold text-muted-foreground uppercase tracking-widest leading-none">
+                    SAX: <span className="text-foreground font-black text-4xl">{score}</span> / {total}
+                  </p>
+                  <div className="h-4 w-full bg-secondary rounded-full overflow-hidden border border-border/10">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${percentage}%` }}
+                      transition={{ duration: 1, delay: 0.5 }}
+                      className="h-full premium-gradient"
+                    />
+                  </div>
+                  <p className={cn("text-3xl font-black tracking-tight mt-4 drop-shadow-sm", performance.color)}>{performance.message}</p>
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  <Button size="lg" onClick={handleRestart} className="h-16 px-10 rounded-2xl text-xl font-bold shadow-xl transition-all hover:scale-105">
+                    <RotateCcw className="mr-3 h-6 w-6" /> Dib u bilaaw
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={() => setScreen("study")} className="h-16 px-10 rounded-2xl text-xl font-bold border-2 transition-all hover:bg-muted">
+                    <BookOpen className="mr-3 h-6 w-6 text-primary" /> Dib u eeg casharka
                   </Button>
                 </div>
               </CardContent>
@@ -419,4 +485,3 @@ const QuizApp = () => {
 };
 
 export default QuizApp;
-
