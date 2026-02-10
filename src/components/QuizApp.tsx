@@ -18,77 +18,32 @@ function shuffleArray<T>(array: T[]): T[] {
   return result;
 }
 
-const uiTranslations = {
-  so: {
-    welcomeTitle: "Somali AI Quiz Hub",
-    welcomeDescription: "Ku soo dhowaad quiz-ka ku saabsan Generative AI iyo mustaqbalka waxbarashada sare ee Soomaaliya.",
-    questionCount: "Su'aalood",
-    interactive: "Interaktiv",
-    startButton: "Bilow Quiz-ka",
-    nextButton: "Xiga",
-    resultsTitle: "Quiz-ka waa dhamaaday!",
-    restartButton: "Dib u bilaaw",
-    scoreLabel: "Waxaad heshay {score} su'aalood oo sax ah {total} ka mid ah.",
-    performance80: "🎉 Aad baad u fiicantahay!",
-    performance50: "👍 Waa lagu mahadsan yahay!",
-    performance0: "📚 Sii baro!",
-    progressLabel: "Su'aasha {current} ee {total}",
-    scoreDisplay: "Score-kaaga",
-    progressTitle: "Hore u soco",
-  },
-  en: {
-    welcomeTitle: "Somali AI Quiz Hub",
-    welcomeDescription: "Welcome to the quiz about Generative AI and the future of higher education in Somalia.",
-    questionCount: "Questions",
-    interactive: "Interactive",
-    startButton: "Start Quiz",
-    nextButton: "Next",
-    resultsTitle: "Quiz Completed!",
-    restartButton: "Restart Quiz",
-    scoreLabel: "You got {score} correct questions out of {total}.",
-    performance80: "🎉 Excellent job!",
-    performance50: "👍 Well done!",
-    performance0: "📚 Keep learning!",
-    progressLabel: "Question {current} of {total}",
-    scoreDisplay: "Your Score",
-    progressTitle: "Progress",
-  }
-};
-
-function shuffleWithMapping(optionsSo: string[], optionsEn: string[], correctIndex: number) {
-  const correctOptionSo = optionsSo[correctIndex];
-
-  const indices = optionsSo.map((_, i) => i);
-  const shuffledIndices = shuffleArray(indices);
-
-  const finalOptionsSo = shuffledIndices.map(i => optionsSo[i]);
-  const finalOptionsEn = shuffledIndices.map(i => optionsEn[i]);
+function shuffleWithMapping(options: string[], correctIndex: number) {
+  const correctOption = options[correctIndex];
+  const shuffledOptions = shuffleArray([...options]);
 
   return {
-    shuffledSo: finalOptionsSo,
-    shuffledEn: finalOptionsEn,
-    newCorrectIndex: finalOptionsSo.indexOf(correctOptionSo),
+    shuffled: shuffledOptions,
+    newCorrectIndex: shuffledOptions.indexOf(correctOption),
   };
 }
 
 const QuizApp = () => {
-  const [lang, setLang] = useState<"so" | "en">("so");
   const [screen, setScreen] = useState<Screen>("welcome");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [shuffleKey, setShuffleKey] = useState(0);
 
-  const t = uiTranslations[lang];
   const total = quizQuestions.length;
 
   const shuffledQuestions = useMemo<QuizQuestion[]>(() => {
     const shuffledQ = shuffleArray(quizQuestions);
     return shuffledQ.map((q: QuizQuestion): QuizQuestion => {
-      const { shuffledSo, shuffledEn, newCorrectIndex } = shuffleWithMapping(q.options.so, q.options.en, q.correctIndex);
+      const { shuffled, newCorrectIndex } = shuffleWithMapping(q.options, q.correctIndex);
       return {
         ...q,
-        options: { so: shuffledSo, en: shuffledEn },
+        options: shuffled,
         correctIndex: newCorrectIndex
       };
     });
@@ -110,26 +65,13 @@ const QuizApp = () => {
     });
   };
 
-  const speakText = (text: string) => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = lang === "so" ? "so" : "en-US";
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
   const handleSelect = (index: number) => {
     if (answered) return;
-
-    const selectedOptionText = question.options[lang][index];
-    speakText(selectedOptionText);
-
     setSelectedAnswer(index);
     if (index === question.correctIndex) {
       setScore((s) => s + 1);
     }
-    setTimeout(handleNext, 2000);
+    setTimeout(handleNext, 1200);
   };
 
   const handleRestart = () => {
@@ -143,34 +85,15 @@ const QuizApp = () => {
   const percentage = Math.round((score / total) * 100);
 
   const getPerformanceData = () => {
-    if (percentage >= 80) return { message: t.performance80, color: "text-green-500", icon: Trophy };
-    if (percentage >= 50) return { message: t.performance50, color: "text-blue-500", icon: Sparkles };
-    return { message: t.performance0, color: "text-orange-500", icon: Brain };
+    if (percentage >= 80) return { message: "🎉 Aad baad u fiicantahay!", color: "text-green-500", icon: Trophy };
+    if (percentage >= 50) return { message: "👍 Waa lagu mahadsan yahay!", color: "text-blue-500", icon: Sparkles };
+    return { message: "📚 Sii baro!", color: "text-orange-500", icon: Brain };
   };
 
   const performance = getPerformanceData();
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4 selection:bg-primary/20 flex-col gap-4">
-      <div className="flex gap-2 mb-4 bg-muted p-1 rounded-full shadow-inner">
-        <Button
-          variant={lang === "so" ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setLang("so")}
-          className="rounded-full px-6 transition-all"
-        >
-          Soomaali
-        </Button>
-        <Button
-          variant={lang === "en" ? "default" : "ghost"}
-          size="sm"
-          onClick={() => setLang("en")}
-          className="rounded-full px-6 transition-all"
-        >
-          English
-        </Button>
-      </div>
-
       <AnimatePresence mode="wait">
         {screen === "welcome" && (
           <motion.div
@@ -193,10 +116,10 @@ const QuizApp = () => {
                 </motion.div>
                 <div className="space-y-2">
                   <CardTitle className="text-3xl font-bold tracking-tight sm:text-4xl text-foreground">
-                    {t.welcomeTitle}
+                    Somali AI Quiz Hub
                   </CardTitle>
                   <CardDescription className="text-lg text-muted-foreground max-w-md mx-auto">
-                    {t.welcomeDescription}
+                    Ku soo dhowaad quiz-ka ku saabsan Generative AI iyo mustaqbalka waxbarashada sare ee Soomaaliya.
                   </CardDescription>
                 </div>
               </CardHeader>
@@ -204,15 +127,15 @@ const QuizApp = () => {
                 <div className="flex items-center gap-8 mb-8 text-sm text-muted-foreground font-medium">
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-primary" />
-                    <span>{total} {t.questionCount}</span>
+                    <span>{total} Su'aalood</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4 text-primary" />
-                    <span>{t.interactive}</span>
+                    <span>Interaktiv</span>
                   </div>
                 </div>
                 <Button size="lg" onClick={() => setScreen("quiz")} className="h-14 px-10 text-lg rounded-full shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:scale-105 active:scale-95">
-                  {t.startButton} <ArrowRight className="ml-2 h-5 w-5" />
+                  Bilow Quiz-ka <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </CardContent>
             </Card>
@@ -230,12 +153,12 @@ const QuizApp = () => {
             <div className="flex items-center justify-between px-2">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">
-                  {t.progressLabel.replace("{current}", (currentIndex + 1).toString()).replace("{total}", total.toString())}
+                  Su'aasha {currentIndex + 1} ee {total}
                 </p>
-                <h3 className="text-xl font-bold">{t.progressTitle}</h3>
+                <h3 className="text-xl font-bold">Hore u soco</h3>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium text-muted-foreground">{t.scoreDisplay}</p>
+                <p className="text-sm font-medium text-muted-foreground">Score-kaaga</p>
                 <p className="text-xl font-bold text-primary">{score}</p>
               </div>
             </div>
@@ -253,11 +176,11 @@ const QuizApp = () => {
                 <Card className="glass border-none shadow-2xl overflow-hidden">
                   <CardHeader className="pb-4">
                     <CardTitle className="text-xl sm:text-2xl leading-relaxed font-semibold">
-                      {question.question[lang]}
+                      {question.question}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="grid gap-3 pt-4">
-                    {question.options[lang].map((option, i) => {
+                    {question.options.map((option, i) => {
                       const isCorrect = i === question.correctIndex;
                       const isSelected = i === selectedAnswer;
                       const showCorrect = answered && isCorrect;
@@ -316,7 +239,7 @@ const QuizApp = () => {
                   transition={{ delay: 0.2 }}
                 >
                   <performance.icon className={cn("mx-auto h-16 w-16 mb-4", performance.color)} />
-                  <CardTitle className="text-3xl">{t.resultsTitle}</CardTitle>
+                  <CardTitle className="text-3xl">Quiz-ka waa dhamaaday!</CardTitle>
                 </motion.div>
               </CardHeader>
               <CardContent className="text-center space-y-8 pb-10">
@@ -330,7 +253,7 @@ const QuizApp = () => {
                     {percentage}%
                   </motion.p>
                   <p className="text-xl font-medium text-muted-foreground">
-                    {t.scoreLabel.replace("{score}", score.toString()).replace("{total}", total.toString())}
+                    Waxaad heshay <span className="text-foreground font-bold">{score}</span> su'aalood oo sax ah {total} ka mid ah.
                   </p>
                 </div>
 
@@ -338,7 +261,7 @@ const QuizApp = () => {
                   <Progress value={percentage} className="h-4 rounded-full" />
                   <p className={cn("text-2xl font-bold", performance.color)}>{performance.message}</p>
                   <Button size="lg" onClick={handleRestart} className="h-14 px-10 rounded-full variant-outline border-2 hover:bg-primary hover:text-white transition-all">
-                    <RotateCcw className="mr-2 h-5 w-5" /> {t.restartButton}
+                    <RotateCcw className="mr-2 h-5 w-5" /> Dib u bilaaw
                   </Button>
                 </div>
               </CardContent>
@@ -351,4 +274,3 @@ const QuizApp = () => {
 };
 
 export default QuizApp;
-

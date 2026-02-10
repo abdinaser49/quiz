@@ -1,234 +1,108 @@
 export interface QuizQuestion {
-  question: {
-    so: string;
-    en: string;
-  };
-  options: {
-    so: string[];
-    en: string[];
-  };
+  question: string;
+  options: string[];
   correctIndex: number;
 }
 
 export const quizQuestions: QuizQuestion[] = [
   {
-    question: {
-      so: "Generative AI waxa uu awood u leeyahay inuu:",
-      en: "Generative AI is capable of:",
-    },
-    options: {
-      so: ["Kaydiyo xog keliya", "Abuuro qoraal, sawir, iyo cod", "Maareeyo internet"],
-      en: ["Saving data only", "Creating text, images, and audio", "Managing the internet"],
-    },
+    question: "Generative AI waxa uu awood u leeyahay inuu:",
+    options: ["Kaydiyo xog keliya", "Abuuro qoraal, sawir, iyo cod", "Maareeyo internet"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Higher Education waxaa loola jeedaa:",
-      en: "Higher Education refers to:",
-    },
-    options: {
-      so: ["Dugsi hoose", "Waxbarashada jaamacadeed", "Tababar shaqo"],
-      en: ["Primary school", "University education", "Vocational training"],
-    },
+    question: "Higher Education waxaa loola jeedaa:",
+    options: ["Dugsi hoose", "Waxbarashada jaamacadeed", "Tababar shaqo"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "AI heer caalami ah waxaa si weyn u adeegsada:",
-      en: "Globally, AI is widely used by:",
-    },
-    options: {
-      so: ["Dalalka soo koraya", "USA, China, UK", "Afrika oo dhan"],
-      en: ["Developing countries", "USA, China, UK", "All of Africa"],
-    },
+    question: "AI heer caalami ah waxaa si weyn u adeegsada:",
+    options: ["Dalalka soo koraya", "USA, China, UK", "Afrika oo dhan"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Afrika gudaheeda AI waxaa loo adeegsadaa:",
-      en: "Within Africa, AI is used for:",
-    },
-    options: {
-      so: ["Ciyaaro", "Taageeridda waxbarashada", "Suuq-geyn"],
-      en: ["Games", "Supporting education", "Marketing"],
-    },
+    question: "Afrika gudaheeda AI waxaa loo adeegsadaa:",
+    options: ["Ciyaaro", "Taageeridda waxbarashada", "Suuq-geyn"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Soomaaliya ardaydu AI waxay u isticmaalaan:",
-      en: "In Somalia, students use AI for:",
-    },
-    options: {
-      so: ["Madadaalo", "Fahamka casharro", "Isgaarsiin"],
-      en: ["Entertainment", "Understanding lessons", "Communication"],
-    },
+    question: "Soomaaliya ardaydu AI waxay u isticmaalaan:",
+    options: ["Madadaalo", "Fahamka casharro", "Isgaarsiin"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Mid ka mid ah dhibaatooyinka AI waa:",
-      en: "One of the problems of AI is:",
-    },
-    options: {
-      so: ["Internet badan", "Khatar anshaxeed", "Macallimiin yar"],
-      en: ["Excessive internet usage", "Ethical risks", "Fewer teachers"],
-    },
+    question: "Mid ka mid ah dhibaatooyinka AI waa:",
+    options: ["Internet badan", "Khatar anshaxeed", "Macallimiin yar"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Xaaladda la doonayo waa:",
-      en: "The desired situation is:",
-    },
-    options: {
-      so: ["In AI la mamnuuco", "AI nidaamsan oo anshax leh", "AI la iska ilaawo"],
-      en: ["To ban AI", "Regulated and ethical AI", "To forget about AI"],
-    },
+    question: "Xaaladda la doonayo waa:",
+    options: ["In AI la mamnuuco", "AI nidaamsan oo anshax leh", "AI la iska ilaawo"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Research gap waxaa loola jeedaa:",
-      en: "Research gap means:",
-    },
-    options: {
-      so: ["Xog buuxda", "Farqi cilmi-baaris", "Natiijooyin"],
-      en: ["Complete data", "Research gap", "Results"],
-    },
+    question: "Research gap waxaa loola jeedaa:",
+    options: ["Xog buuxda", "Farqi cilmi-baaris", "Natiijooyin"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Ujeeddada guud ee daraasaddu waa:",
-      en: "The general objective of the study is:",
-    },
-    options: {
-      so: ["Mamnuucid AI", "Dheellitir innovation iyo ethics", "Qiimeyn arday"],
-      en: ["Banning AI", "Balancing innovation and ethics", "Evaluating students"],
-    },
+    question: "Ujeeddada guud ee daraasaddu waa:",
+    options: ["Mamnuucid AI", "Dheellitir innovation iyo ethics", "Qiimeyn arday"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Intelligent AI systems waxay:",
-      en: "Intelligent AI systems:",
-    },
-    options: {
-      so: ["Kaydiyaan xog", "La qabsadaan ardayga", "Sameeyaan xisaab"],
-      en: ["Store data", "Adapt to the student", "Perform calculations"],
-    },
+    question: "Intelligent AI systems waxay:",
+    options: ["Kaydiyaan xog", "La qabsadaan ardayga", "Sameeyaan xisaab"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "AI-driven technologies waxaa ka mid ah:",
-      en: "AI-driven technologies include:",
-    },
-    options: {
-      so: ["LMS", "Buugaag", "Qalin"],
-      en: ["LMS", "Books", "Pen"],
-    },
+    question: "AI-driven technologies waxaa ka mid ah:",
+    options: ["LMS", "Buugaag", "Qalin"],
     correctIndex: 0,
   },
   {
-    question: {
-      so: "Conceptual framework wuxuu muujinayaa:",
-      en: "The conceptual framework shows:",
-    },
-    options: {
-      so: ["Xiriirka IV & DV", "Miisaaniyad", "Waqti"],
-      en: ["Relationship between IV & DV", "Budget", "Time"],
-    },
+    question: "Conceptual framework wuxuu muujinayaa:",
+    options: ["Xiriirka IV & DV", "Miisaaniyad", "Waqti"],
     correctIndex: 0,
   },
   {
-    question: {
-      so: "Nooca cilmi-baarista waa:",
-      en: "The type of research is:",
-    },
-    options: {
-      so: ["Qualitative", "Quantitative", "Mixed"],
-      en: ["Qualitative", "Quantitative", "Mixed"],
-    },
+    question: "Nooca cilmi-baarista waa:",
+    options: ["Qualitative", "Quantitative", "Mixed"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Tirada population-ka waa:",
-      en: "The population size is:",
-    },
-    options: {
-      so: ["100", "200", "300"],
-      en: ["100", "200", "300"],
-    },
+    question: "Tirada population-ka waa:",
+    options: ["100", "200", "300"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Sample size-ka waa:",
-      en: "The sample size is:",
-    },
-    options: {
-      so: ["120", "133", "150"],
-      en: ["120", "133", "150"],
-    },
+    question: "Sample size-ka waa:",
+    options: ["120", "133", "150"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Qalabka xog ururinta waa:",
-      en: "The data collection tool is:",
-    },
-    options: {
-      so: ["Questionnaires", "Cameras", "Audio"],
-      en: ["Questionnaires", "Cameras", "Audio"],
-    },
+    question: "Qalabka xog ururinta waa:",
+    options: ["Questionnaires", "Cameras", "Audio"],
     correctIndex: 0,
   },
   {
-    question: {
-      so: "Validity waxaa lagu hubiyay:",
-      en: "Validity was verified by:",
-    },
-    options: {
-      so: ["CVI & expert judgment", "Guess", "Random"],
-      en: ["CVI & expert judgment", "Guess", "Random"],
-    },
+    question: "Validity waxaa lagu hubiyay:",
+    options: ["CVI & expert judgment", "Guess", "Random"],
     correctIndex: 0,
   },
   {
-    question: {
-      so: "Reliability waxaa lagu cabbiray:",
-      en: "Reliability was measured by:",
-    },
-    options: {
-      so: ["GPA", "Cronbach’s Alpha", "IQ"],
-      en: ["GPA", "Cronbach’s Alpha", "IQ"],
-    },
+    question: "Reliability waxaa lagu cabbiray:",
+    options: ["GPA", "Cronbach’s Alpha", "IQ"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Xogta waxaa lagu falanqeeyay:",
-      en: "The data was analyzed using:",
-    },
-    options: {
-      so: ["Word", "SPSS", "Paint"],
-      en: ["Word", "SPSS", "Paint"],
-    },
+    question: "Xogta waxaa lagu falanqeeyay:",
+    options: ["Word", "SPSS", "Paint"],
     correctIndex: 1,
   },
   {
-    question: {
-      so: "Mid ka mid ah xaddidaadaha daraasadda waa:",
-      en: "One of the study limitations is:",
-    },
-    options: {
-      so: ["Waqti & dhaqaale", "Arday badan", "Software"],
-      en: ["Time & resources", "Too many students", "Software"],
-    },
+    question: "Mid ka mid ah xaddidaadaha daraasadda waa:",
+    options: ["Waqti & dhaqaale", "Arday badan", "Software"],
     correctIndex: 0,
   },
 ];
