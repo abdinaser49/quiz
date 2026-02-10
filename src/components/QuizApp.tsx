@@ -1,13 +1,15 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { quizQuestions, type QuizQuestion } from "@/data/quizQuestions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, XCircle, RotateCcw, ArrowRight, Brain, Sparkles, Trophy, Target } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CheckCircle2, XCircle, RotateCcw, ArrowRight, Brain, Sparkles, Trophy, Target, Type, ListChecks, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Screen = "welcome" | "quiz" | "results";
+type Mode = "choice" | "direct";
 
 function shuffleArray<T>(array: T[]): T[] {
   const result = [...array];
@@ -30,9 +32,12 @@ function shuffleWithMapping(options: string[], correctIndex: number) {
 
 const QuizApp = () => {
   const [screen, setScreen] = useState<Screen>("welcome");
+  const [mode, setMode] = useState<Mode>("choice");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [directInput, setDirectInput] = useState("");
+  const [isCorrectDirect, setIsCorrectDirect] = useState<boolean | null>(null);
   const [shuffleKey, setShuffleKey] = useState(0);
 
   const total = quizQuestions.length;
@@ -50,13 +55,15 @@ const QuizApp = () => {
   }, [shuffleKey]);
 
   const question = shuffledQuestions[currentIndex];
-  const answered = selectedAnswer !== null;
+  const answered = selectedAnswer !== null || isCorrectDirect !== null;
   const progress = ((currentIndex + (answered ? 1 : 0)) / total) * 100;
 
   const handleNext = () => {
     setCurrentIndex((prev) => {
       if (prev + 1 < total) {
         setSelectedAnswer(null);
+        setDirectInput("");
+        setIsCorrectDirect(null);
         return prev + 1;
       } else {
         setScreen("results");
@@ -66,7 +73,7 @@ const QuizApp = () => {
   };
 
   const handleSelect = (index: number) => {
-    if (answered) return;
+    if (answered || mode !== "choice") return;
     setSelectedAnswer(index);
     if (index === question.correctIndex) {
       setScore((s) => s + 1);
@@ -74,11 +81,27 @@ const QuizApp = () => {
     setTimeout(handleNext, 1200);
   };
 
+  const handleDirectSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (answered || mode !== "direct" || !directInput.trim()) return;
+
+    const correctText = question.options[question.correctIndex].toLowerCase().trim();
+    const isCorrect = directInput.toLowerCase().trim() === correctText;
+
+    setIsCorrectDirect(isCorrect);
+    if (isCorrect) {
+      setScore((s) => s + 1);
+    }
+    setTimeout(handleNext, 2000);
+  };
+
   const handleRestart = () => {
     setScreen("welcome");
     setCurrentIndex(0);
     setScore(0);
     setSelectedAnswer(null);
+    setDirectInput("");
+    setIsCorrectDirect(null);
     setShuffleKey((k) => k + 1);
   };
 
@@ -93,7 +116,41 @@ const QuizApp = () => {
   const performance = getPerformanceData();
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-4 selection:bg-primary/20 flex-col gap-4">
+    <div className="flex min-h-screen items-center justify-center p-4 selection:bg-primary/20 flex-col gap-6">
+      {/* Mode Toggle */}
+      {screen === "quiz" && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex bg-muted p-1 rounded-xl shadow-inner"
+        >
+          <Button
+            variant={mode === "choice" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => {
+              if (answered) return;
+              setMode("choice");
+            }}
+            className={cn("rounded-lg px-4 gap-2", mode === "choice" && "shadow-sm")}
+          >
+            <ListChecks className="h-4 w-4" />
+            Xulasho
+          </Button>
+          <Button
+            variant={mode === "direct" ? "default" : "ghost"}
+            size="sm"
+            onClick={() => {
+              if (answered) return;
+              setMode("direct");
+            }}
+            className={cn("rounded-lg px-4 gap-2", mode === "direct" && "shadow-sm")}
+          >
+            <Type className="h-4 w-4" />
+            Qoraal
+          </Button>
+        </motion.div>
+      )}
+
       <AnimatePresence mode="wait">
         {screen === "welcome" && (
           <motion.div
@@ -123,8 +180,28 @@ const QuizApp = () => {
                   </CardDescription>
                 </div>
               </CardHeader>
-              <CardContent className="flex flex-col items-center pb-10">
-                <div className="flex items-center gap-8 mb-8 text-sm text-muted-foreground font-medium">
+              <CardContent className="flex flex-col items-center pb-10 gap-6">
+                <div className="flex flex-col items-center gap-4">
+                  <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest text-center">Dooro Nooca Quiz-ka</p>
+                  <div className="flex gap-3">
+                    <Button
+                      variant={mode === "choice" ? "default" : "outline"}
+                      onClick={() => setMode("choice")}
+                      className="gap-2 h-12 px-6 rounded-xl transition-all"
+                    >
+                      <ListChecks className="h-5 w-5" /> Multiple Choice
+                    </Button>
+                    <Button
+                      variant={mode === "direct" ? "default" : "outline"}
+                      onClick={() => setMode("direct")}
+                      className="gap-2 h-12 px-6 rounded-xl transition-all"
+                    >
+                      <Type className="h-5 w-5" /> Qoraal (Direct)
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-8 text-sm text-muted-foreground font-medium">
                   <div className="flex items-center gap-2">
                     <Target className="h-4 w-4 text-primary" />
                     <span>{total} Su'aalood</span>
@@ -179,43 +256,98 @@ const QuizApp = () => {
                       {question.question}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="grid gap-3 pt-4">
-                    {question.options.map((option, i) => {
-                      const isCorrect = i === question.correctIndex;
-                      const isSelected = i === selectedAnswer;
-                      const showCorrect = answered && isCorrect;
-                      const showWrong = answered && isSelected && !isCorrect;
+                  <CardContent className="pt-4">
+                    {mode === "choice" ? (
+                      <div className="grid gap-3">
+                        {question.options.map((option, i) => {
+                          const isCorrect = i === question.correctIndex;
+                          const isSelected = i === selectedAnswer;
+                          const showCorrect = answered && isCorrect;
+                          const showWrong = answered && isSelected && !isCorrect;
 
-                      return (
-                        <motion.button
-                          key={i}
-                          whileHover={!answered ? { scale: 1.01, x: 5 } : {}}
-                          whileTap={!answered ? { scale: 0.98 } : {}}
-                          disabled={answered}
-                          onClick={() => handleSelect(i)}
-                          className={cn(
-                            "option-button flex w-full items-center gap-4 rounded-xl border-2 p-4 text-left transition-all duration-300",
-                            !answered && "hover:border-primary/50 hover:bg-primary/5 border-border bg-card/50",
-                            answered && !isCorrect && !isSelected && "opacity-40 border-border bg-transparent",
-                            showCorrect && "border-green-500 bg-green-500/10 text-green-700 shadow-lg shadow-green-500/20",
-                            showWrong && "border-destructive bg-destructive/10 text-destructive shadow-lg shadow-destructive/20"
+                          return (
+                            <motion.button
+                              key={i}
+                              whileHover={!answered ? { scale: 1.01, x: 5 } : {}}
+                              whileTap={!answered ? { scale: 0.98 } : {}}
+                              disabled={answered}
+                              onClick={() => handleSelect(i)}
+                              className={cn(
+                                "option-button flex w-full items-center gap-4 rounded-xl border-2 p-4 text-left transition-all duration-300",
+                                !answered && "hover:border-primary/50 hover:bg-primary/5 border-border bg-card/50",
+                                answered && !isCorrect && !isSelected && "opacity-40 border-border bg-transparent",
+                                showCorrect && "border-green-500 bg-green-500/10 text-green-700 shadow-lg shadow-green-500/20",
+                                showWrong && "border-destructive bg-destructive/10 text-destructive shadow-lg shadow-destructive/20"
+                              )}
+                            >
+                              <span className={cn(
+                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-2 text-sm font-bold transition-colors",
+                                !answered && "bg-secondary text-secondary-foreground border-transparent",
+                                showCorrect && "bg-green-500 text-white border-green-500",
+                                showWrong && "bg-destructive text-white border-destructive",
+                                answered && !isCorrect && !isSelected && "bg-muted text-muted-foreground"
+                              )}>
+                                {String.fromCharCode(65 + i)}
+                              </span>
+                              <span className="flex-1 font-medium">{option}</span>
+                              {showCorrect && <CheckCircle2 className="h-6 w-6 shrink-0 text-green-600 animate-in" />}
+                              {showWrong && <XCircle className="h-6 w-6 shrink-0 text-destructive animate-in" />}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <form onSubmit={handleDirectSubmit} className="space-y-6">
+                        <div className="relative">
+                          <Input
+                            placeholder="Halkan ku qor jawaabta saxda ah..."
+                            value={directInput}
+                            onChange={(e) => setDirectInput(e.target.value)}
+                            disabled={answered}
+                            className={cn(
+                              "h-16 px-6 text-lg rounded-xl border-2 transition-all",
+                              isCorrectDirect === true && "border-green-500 bg-green-500/5 ring-green-500/20",
+                              isCorrectDirect === false && "border-destructive bg-destructive/5 ring-destructive/20"
+                            )}
+                          />
+                          {!answered && (
+                            <Button
+                              type="submit"
+                              size="icon"
+                              className="absolute right-2 top-2 h-12 w-12 rounded-lg"
+                              disabled={!directInput.trim()}
+                            >
+                              <Send className="h-5 w-5" />
+                            </Button>
                           )}
-                        >
-                          <span className={cn(
-                            "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border-2 text-sm font-bold transition-colors",
-                            !answered && "bg-secondary text-secondary-foreground border-transparent",
-                            showCorrect && "bg-green-500 text-white border-green-500",
-                            showWrong && "bg-destructive text-white border-destructive",
-                            answered && !isCorrect && !isSelected && "bg-muted text-muted-foreground"
-                          )}>
-                            {String.fromCharCode(65 + i)}
-                          </span>
-                          <span className="flex-1 font-medium">{option}</span>
-                          {showCorrect && <CheckCircle2 className="h-6 w-6 shrink-0 text-green-600 animate-in" />}
-                          {showWrong && <XCircle className="h-6 w-6 shrink-0 text-destructive animate-in" />}
-                        </motion.button>
-                      );
-                    })}
+                        </div>
+
+                        <AnimatePresence>
+                          {answered && (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className={cn(
+                                "p-4 rounded-xl flex items-center gap-3 font-medium",
+                                isCorrectDirect ? "bg-green-500/10 text-green-700 border border-green-200" : "bg-destructive/10 text-destructive border border-destructive/20"
+                              )}
+                            >
+                              {isCorrectDirect ? (
+                                <>
+                                  <CheckCircle2 className="h-5 w-5" />
+                                  <span>Waa sax! Aad baad u fiicantahay.</span>
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="h-5 w-5" />
+                                  <span>Waa khalad. Jawaabta saxda ahayd: <span className="font-bold underline">{question.options[question.correctIndex]}</span></span>
+                                </>
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </form>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>
@@ -274,3 +406,4 @@ const QuizApp = () => {
 };
 
 export default QuizApp;
+
